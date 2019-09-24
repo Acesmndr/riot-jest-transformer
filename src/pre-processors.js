@@ -10,7 +10,7 @@ const getRegistrationOptions = (config) => {
   if (Array.isArray(transform)) {
     const rjtConfig = transform.find(entry =>
       entry[TRANSFORMER_PATH].includes('riot-jest-transformer'));
-    const registrations = get(rjtConfig[TRANSFORMER_OPTIONS],'registrations', null);
+    const registrations = get(require(rjtConfig[TRANSFORMER_OPTIONS]), 'registrations', null);
     return registrations;
   }
   return null;
