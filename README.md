@@ -32,20 +32,26 @@ If you use [Riot pre-processors](https://riot.js.org/compiler/#pre-processors), 
 {
     "transform": {
         "^.+\\.jsx?$": "babel-jest",
-        "^.+\\.tag$": ["riot-jest-transformer", {
-          registrations: [{
-            type: 'css' | 'template' | 'javascript',
-            name: string,
-            registrationCb: (code: string, { options }) => {
-                /**  
-                * pre-process code using your  
-                * favorite preprocessor, and finally  
-                * return the pre-processed code and  
-                * sourcemap
-                **/
-            }: { code: string, map: null | sourcemap }
-        }]
-    }
+        "^.+\\.riot$": ["riot-jest-transformer", `${__dirname}/rjt.config.js`]
+}
+```
+
+Then define the riot jest transformer setup file (rjt-setup.js) as
+
+```js
+module.exports = {
+        registrations: [{
+        type: 'css' | 'template' | 'javascript',
+        name: string,
+        registrationCb: (code: string, { options }) => {
+            /**  
+            * pre-process code using your  
+            * favorite preprocessor, and finally  
+            * return the pre-processed code and  
+            * sourcemap
+            **/
+        }: { code: string, map: null | sourcemap }
+    }]
 }
 ```
 
@@ -53,32 +59,36 @@ For example using `node-sass` for pre-processing `.scss` files, you can define t
 
 ```js
 // jest.config.js
-
-const sass = require('node-sass');
-
 module.exports = {
     transform: {
-        "^.+\\.riot$": ["riot-jest-transformer", {
-            registrations: [{
-                type: 'css',
-                name: 'scss',
-                registrationCb: function(code, { options }) {
-                    const { file } = options;
-                    console.log('Compile the sass code in', file);
-                    const {css} = sass.renderSync({
-                      data: code
-                    });
-                    return {
-                      code: css.toString(),
-                      map: null
-                    }
-                }
-            }]
-        }],
+        "^.+\\.riot$": ["riot-jest-transformer", `${__dirname}/rjt.config.js`],
         "^.+\\.jsx?$": "babel-jest"
     },
 };
 
+```
+
+```js
+// rjt.config.js
+const sass = require('node-sass');
+
+module.exports = {
+    registrations: [{
+        type: 'css',
+        name: 'scss',
+        registrationCb: function(code, { options }) {
+            const { file } = options;
+            console.log('Compile the sass code in', file);
+            const {css} = sass.renderSync({
+                data: code
+            });
+            return {
+                code: css.toString(),
+                map: null
+            }
+        }
+    }]
+}
 ```
 
 #### Usage
